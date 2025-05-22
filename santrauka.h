@@ -21,6 +21,13 @@
 #include <list>
 #include <deque>
 #include <cassert>
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <regex>
+#include <cctype>
+#include <string>
+#include <locale>
 
 using std::cerr;
 using std::cin;
@@ -32,6 +39,7 @@ using std::ifstream;
 using std::istringstream;
 using std::left;
 using std::list;
+using std::map;
 using std::max;
 using std::move;
 using std::ofstream;
@@ -43,6 +51,8 @@ using std::sort;
 using std::string;
 using std::stringstream;
 using std::to_string;
-// using std::vector;
+using std::vector;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
+std::unordered_map;
+std::set;
