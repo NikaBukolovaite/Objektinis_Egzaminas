@@ -1,4 +1,5 @@
 #include "funkcijos.h"
+#include <boost/locale.hpp>
 
 string koki_faila_nuskaityti()
 {
@@ -36,22 +37,49 @@ string koki_faila_nuskaityti()
 	}
 }
 
-string skyrybos_zenklai(const string &zodis)
+std::string apdorok(const std::string &zodis)
 {
-	string rezultatas;
-	for (char c : zodis)
+	// Sukuriam lokalę
+	boost::locale::generator gen;
+	std::locale lietuviska = gen("Lithuanian_Lithuania.1257");
+	// arba "Lithuanian_Lithuania.1257" ant Windows
+	std::locale::global(lietuviska);
+
+	std::wstring rezultatas;
+
+	// Konvertuojam į platus simbolius (UTF-16 Windows)
+	std::wstring zodis_w = boost::locale::conv::to_utf<wchar_t>(zodis, "UTF-8");
+
+	for (wchar_t c : zodis_w)
 	{
-		if (isalpha(static_cast<unsigned char>(c)))
+		// Naudojam Boost locale-aware alpha tikrinimą
+		if (boost::locale::isalpha(c, lietuviska) || c == L'-')
 		{
-			rezultatas += tolower(static_cast<unsigned char>(c));
+			rezultatas += boost::locale::tolower(c, lietuviska);
 		}
 	}
-	return rezultatas;
+
+	// Grąžinam atgal į paprastą UTF-8 string
+	return boost::locale::conv::from_utf(rezultatas, "UTF-8");
 }
+
+// string skyrybos_zenklai(const string &zodis)
+// {
+// 	string rezultatas;
+// 	for (char c : zodis)
+// 	{
+// 		if (isalpha(static_cast<unsigned char>(c)))
+// 		{
+// 			rezultatas += tolower(static_cast<unsigned char>(c));
+// 		}
+// 	}
+// 	return rezultatas;
+// }
 
 void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinimas)
 {
 	ifstream failas(failo_pavadinimas);
+	failas.imbue(std::locale(".UTF-8"));
 	if (!failas)
 	{
 		throw std::ios_base::failure("Klaida: nepavyko atidaryti failo!");
