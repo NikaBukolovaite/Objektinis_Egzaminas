@@ -4,8 +4,8 @@
 int main()
 {
 	// std::locale::global(std::locale("lt_LT"));
-	// std::locale::global(std::locale(::setlocale(LC_ALL, "lt_LT")));
-	std::setlocale(LC_ALL, "Lithuanian");
+	// std::locale::global(std::locale(::setlocale(LC_ALL, "lt_LT.UTF-8")));
+	std::locale::global(std::locale("lt_LT.UTF-8"));
 	string failas = koki_faila_nuskaityti();
 	suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(failas);
 }

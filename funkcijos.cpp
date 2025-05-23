@@ -1,4 +1,5 @@
 #include "funkcijos.h"
+#include <cwctype>
 
 string koki_faila_nuskaityti()
 {
@@ -65,7 +66,7 @@ string koki_faila_nuskaityti()
 string skyrybos_zenklai(const string &zodis)
 {
 	string rezultatas{};
-	for (unsigned char c : zodis)
+	for (const unsigned char c : zodis)
 	{
 		if (!std::ispunct(c) && !std::isdigit(c))
 		{
