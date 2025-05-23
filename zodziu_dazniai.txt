@@ -41,13 +41,13 @@ atominės: 3
 atsisakė: 2
 atskirieji: 2
 atvyko: 2
-aukso: 3
+aukso: 4
 aukšto: 4
 aukštos: 2
 aukštuma: 5
 aukštą: 2
 automobilių: 2
-aušra“: 2
+aušra�: 2
 baigėsi: 3
 bajorų: 3
 bal: 2
@@ -55,10 +55,10 @@ balandžio: 2
 baltarusiai: 2
 baltarusija: 4
 baltarusijos: 5
-baltijos: 11
+baltijos: 13
 baltiška: 2
 baltų: 7
-bank“: 2
+bank�: 2
 bažnyčios: 2
 be: 3
 bei: 12
@@ -307,7 +307,7 @@ katalikų: 2
 kategorijos: 2
 kaunas: 5
 kaune: 4
-kauno: 10
+kauno: 11
 kazlų: 2
 keliai: 3
 kelias: 2
@@ -325,7 +325,7 @@ klaipėdos: 14
 klimatas: 5
 klimato: 2
 km: 32
-km²: 21
+km�: 21
 kokį: 2
 konferencijos: 2
 kongreso: 2
@@ -403,8 +403,8 @@ lietuviška: 3
 lietuviški: 2
 lietuvių: 19
 lietuvoje: 40
-lietuvos: 192
-lietuvos“: 2
+lietuvos: 194
+lietuvos�: 2
 lietuvą: 20
 linijos: 3
 linijų: 2
@@ -492,7 +492,7 @@ negalėjo: 3
 nei: 10
 neilgai: 2
 nemunas: 3
-nemuno: 2
+nemuno: 4
 nenurodė: 3
 nepaisant: 3
 nepriklausoma: 3
@@ -556,7 +556,7 @@ partijos: 2
 partizanų: 2
 pasaulinio: 7
 pasaulinis: 3
-pasaulio: 9
+pasaulio: 10
 pasaulyje: 3
 pasiektas: 2
 pasiekti: 3
@@ -672,7 +672,7 @@ rinktinė: 3
 rizikos: 2
 rodikliai: 5
 rodiklis: 7
-romos: 3
+romos: 4
 rug: 4
 ruginė: 2
 rugpjūčio: 4
@@ -827,10 +827,12 @@ teritorijos: 7
 teritoriją: 7
 teritorinį: 2
 teutonų: 3
+thermo: 2
 tiek: 2
 tiekimą: 2
 ties: 7
 tik: 11
+tiki: 2
 tikėjosi: 2
 tinklų: 2
 to: 8
@@ -895,6 +897,7 @@ valstybės: 23
 valstybę: 6
 vandens: 3
 vandenų: 2
+vardan: 2
 varnas: 2
 varėnos: 2
 varšuvos: 2
@@ -930,7 +933,7 @@ vilniuje: 8
 vilnius: 6
 vilnių: 7
 virtuvė: 2
-visagino: 2
+visagino: 3
 visas: 4
 visi: 5
 viso: 5
@@ -1033,11 +1036,3 @@ zonoje: 2
 žmonių: 7
 žmonės: 2
 žygių: 2
-–: 185
-„baltijos: 2
-„lietuvos: 2
-„nemuno: 2
-„tiki: 2
-„vardan: 2
-′: 6
-−: 12

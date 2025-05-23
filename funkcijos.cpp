@@ -37,38 +37,14 @@ string koki_faila_nuskaityti()
 	}
 }
 
-// std::string apdorok(const std::string &zodis)
-// {
-// 	// Sukuriam lokalę
-// 	boost::locale::generator gen;
-// 	std::locale lietuviska = gen("Lithuanian_Lithuania.1257");
-// 	// arba "Lithuanian_Lithuania.1257" ant Windows
-// 	std::locale::global(lietuviska);
-
-// 	std::wstring rezultatas;
-
-// 	// Konvertuojam į platus simbolius (UTF-16 Windows)
-// 	std::wstring zodis_w = boost::locale::conv::to_utf<wchar_t>(zodis, "UTF-8");
-
-// 	for (wchar_t c : zodis_w)
-// 	{
-// 		// Naudojam Boost locale-aware alpha tikrinimą
-// 		if (boost::locale::isalpha(c, lietuviska) || c == L'-')
-// 		{
-// 			rezultatas += boost::locale::tolower(c, lietuviska);
-// 		}
-// 	}
-
-// 	// Grąžinam atgal į paprastą UTF-8 string
-// 	return boost::locale::conv::from_utf(rezultatas, "UTF-8");
-// }
-
 string skyrybos_zenklai(const string &zodis)
 {
 	string rezultatas{};
+	string papildomi_skyrybos = "–„′−";
+
 	for (const unsigned char c : zodis)
 	{
-		if (!std::ispunct(c) && !std::isdigit(c))
+		if (!std::ispunct(c) && !std::isdigit(c) && papildomi_skyrybos.find(c) == string::npos)
 		{
 			rezultatas += tolower(c);
 		}
@@ -108,4 +84,67 @@ void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinim
 	}
 
 	cout << "Rezultatai įrašyti į 'zodziu_dazniai.txt'\n";
+}
+
+void cross_reference_lentele(const string &failo_pavadinimas)
+{
+	ifstream failas(failo_pavadinimas);
+	if (!failas)
+	{
+		throw std::ios_base::failure("Klaida: nepavyko atidaryti failo!");
+		return;
+	}
+	stringstream buferis;
+	buferis << failas.rdbuf();
+	failas.close();
+
+	map<string, int> zodziu_kiekis;
+	map<string, set<int>> zodziu_eilutes;
+
+	string eilute;
+	int eilutes_nr = 1;
+
+	while (getline(buferis, eilute))
+	{
+		stringstream ss(eilute);
+		string zodis;
+		while (ss >> zodis)
+		{
+			string svarus = skyrybos_zenklai(zodis);
+			if (!svarus.empty())
+			{
+				zodziu_kiekis[svarus]++;
+				zodziu_eilutes[svarus].insert(eilutes_nr);
+			}
+		}
+		eilutes_nr++;
+	}
+	ofstream out("cross_reference.txt");
+	if (!out)
+	{
+		throw std::ios_base::failure("Klaida: nepavyko atidaryti failo!");
+		return;
+	}
+	else
+	{
+		out << left << setw(30) << "Zodis" << "Eilutes\n";
+		out << string(30, '-') << " " << string(40, '-') << "\n";
+		for (const auto &[zodis, eilutes] : zodziu_eilutes)
+		{
+			if (zodziu_kiekis[zodis] > 1)
+			{
+				stringstream eilutes_srautui;
+				bool pirma = true;
+				for (int e : eilutes)
+				{
+					if (!pirma)
+						eilutes_srautui << ", ";
+					eilutes_srautui << e;
+					pirma = false;
+				}
+				out << left << setw(30) << zodis << " " << left << eilutes_srautui.str() << "\n";
+			}
+		}
+	}
+	cout << "Cross-reference lentelė įrašyta į 'cross_reference.txt'\n";
 }
