@@ -33,34 +33,34 @@
 
 # Programos funkcijos
 
-#### string koki_faila_nuskaityti()
+## string koki_faila_nuskaityti()
 
 Leidžia vartotojui pasirinkti vieną .txt failą iš aplankalo "NuskaitymoFailai".
 
-#### string skyrybos_zenklai(const string &zodis)
+## string skyrybos_zenklai(const string &zodis)
 
 Pašalina skyrybos ženklus ir skaičius iš žodžio, kad galima būtų išvalyti tekstą ir palikti tik žodžius.
 
-#### void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinimas)
+## void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinimas)
 
 Suskaičiuoja kiekvieno žodžio dažnį ir įrašo rezultatus į OutputFailai/zodziu_dazniai.txt.
 
-#### void cross_reference_lentele(const string &failo_pavadinimas)
+## void cross_reference_lentele(const string &failo_pavadinimas)
 
 Sugeneruoja lentelę, kur nurodoma, kuriose eilutėse pasikartoja žodžiai. Rezultatas saugomas OutputFailai/cross_reference.txt.
 
-#### string gauti_url_link(const string &zodis);
+## string gauti_url_link(const string &zodis);
 
 Bando ištraukti TLD galūnę iš žodžio (pvz., iš vu.lt gautų lt).
 
-#### string pasalinti_galinius_skyrybos_zenklus(const string &zodis);
+## string pasalinti_galinius_skyrybos_zenklus(const string &zodis);
 
 Pašalina skyrybos ženklus nuo žodžio pabaigos (pvz., vu.lt, → vu.lt).
 
-#### bool ar_zodis_yra_url(const string &zodis, const set<string> &url_linkai);
+## bool ar_zodis_yra_url(const string &zodis, const set<string> &url_linkai);
 
 Patikrina, ar žodis yra URL – pagal domeno galūnes ir struktūrą (pvz., http://, www. ir pan.).
 
-#### void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sarasas)
+## void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sarasas)
 
 Ieško visų galimų URL nuorodų iš teksto ir įrašo jas į OutputFailai/rastieji_url.txt.
