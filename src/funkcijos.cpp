@@ -74,7 +74,7 @@ void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinim
 			zodziu_kiekis[svarus_zodis]++;
 		}
 	}
-	ofstream rezultatai("zodziu_dazniai.txt");
+	ofstream rezultatai("OutputFailai/zodziu_dazniai.txt");
 	for (const auto &pora : zodziu_kiekis)
 	{
 		if (pora.second > 1)
@@ -83,7 +83,7 @@ void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinim
 		}
 	}
 
-	cout << "Rezultatai įrašyti į 'zodziu_dazniai.txt'\n";
+	cout << "Rezultatai įrašyti į 'OutputFailai/zodziu_dazniai.txt'\n";
 }
 
 void cross_reference_lentele(const string &failo_pavadinimas)
@@ -119,7 +119,7 @@ void cross_reference_lentele(const string &failo_pavadinimas)
 		}
 		eilutes_nr++;
 	}
-	ofstream out("cross_reference.txt");
+	ofstream out("OutputFailai/cross_reference.txt");
 	if (!out)
 	{
 		throw std::ios_base::failure("Klaida: nepavyko atidaryti failo!");
@@ -146,7 +146,7 @@ void cross_reference_lentele(const string &failo_pavadinimas)
 			}
 		}
 	}
-	cout << "Cross-reference lentelė įrašyta į 'cross_reference.txt'\n";
+	cout << "Cross-reference lentelė įrašyta į 'OutputFailai/cross_reference.txt'\n";
 }
 
 string gauti_url_link(const string &zodis)
@@ -251,7 +251,7 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 	}
 
 	// Irasome rezultatus i faila
-	ofstream rezultatai("rastieji_url.txt");
+	ofstream rezultatai("OutputFailai/rastieji_url.txt");
 	if (!rezultatai)
 	{
 		throw std::ios_base::failure("Klaida: nepavyko atidaryti rezultatu failo!");
@@ -264,5 +264,5 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 		rezultatai << url << "\n";
 	}
 
-	cout << "Rasti URL'ai įrašyti į 'rastieji_url.txt'\n";
+	cout << "Rasti URL'ai įrašyti į 'OutputFailai/rastieji_url.txt'\n";
 }

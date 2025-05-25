@@ -2,3 +2,4 @@
 *.exe
 NuskaitymoFailai/*.txt
 build
+OutputFailai/*.txt

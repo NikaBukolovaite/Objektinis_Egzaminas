@@ -4,6 +4,6 @@ project(OBJEKTINIO_EGZAMINAS)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories(include)
 
-add_executable(main main.cpp funkcijos.cpp funkcijos.h santrauka.h)
-
+add_executable(main src/main.cpp src/funkcijos.cpp)
