@@ -7,6 +7,7 @@ int main()
 	string failas = koki_faila_nuskaityti();
 	suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(failas);
 	cross_reference_lentele(failas);
+	rasti_visus_galimus_url(failas, "visi_galimi_url.txt");
 }
 
 // // rm build -Recurse -Force
