@@ -149,6 +149,62 @@ void cross_reference_lentele(const string &failo_pavadinimas)
 	cout << "Cross-reference lentelė įrašyta į 'cross_reference.txt'\n";
 }
 
+string gauti_url_link(const string &zodis)
+{
+	size_t paskutinis_taskas = zodis.rfind('.');
+	if (paskutinis_taskas == string::npos || paskutinis_taskas + 1 >= zodis.size())
+	{
+		return "";
+	}
+	string galune = zodis.substr(paskutinis_taskas + 1);
+	size_t galas = 0;
+	while (galas < galune.size() && isalpha(galune[galas]))
+	{
+		galas++;
+	}
+	return galune.substr(0, galas);
+}
+
+string pasalinti_galinius_skyrybos_zenklus(const string &zodis)
+{
+	size_t pabaiga = zodis.size();
+	while (pabaiga > 0 && ispunct(zodis[pabaiga - 1]) && zodis[pabaiga - 1] != '/')
+	{
+		--pabaiga;
+	}
+	return zodis.substr(0, pabaiga);
+}
+
+bool ar_zodis_yra_url(const string &zodis, const set<string> &url_linkai)
+{
+	size_t tasko_pozicija = zodis.find('.');
+	if (tasko_pozicija == string::npos || tasko_pozicija + 1 >= zodis.size())
+	{
+		return false;
+	}
+
+	string galune = zodis.substr(tasko_pozicija + 1);
+	size_t end = 0;
+	while (end < galune.size() && isalpha(galune[end]))
+		end++;
+	galune = galune.substr(0, end);
+	transform(galune.begin(), galune.end(), galune.begin(), ::tolower);
+
+	if (url_linkai.count(galune) == 0)
+	{
+		return false;
+	}
+	if (zodis.find("http://") == 0 || zodis.find("https://") == 0 || zodis.find("www.") == 0)
+	{
+		return true;
+	}
+	if (isalnum(zodis[0]) && zodis.find(' ') == string::npos)
+	{
+		return true;
+	}
+	return false;
+}
+
 void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sarasas)
 {
 	// Ikeliu URL sarasa
@@ -164,6 +220,7 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 	{
 		if (!eilute.empty())
 		{
+			transform(eilute.begin(), eilute.end(), eilute.begin(), ::tolower);
 			url_linkai.insert(eilute);
 		}
 	}
@@ -179,52 +236,96 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 
 	stringstream buferis;
 	buferis << tekstas.rdbuf();
-	string turinys = buferis.str();
 	tekstas.close();
 
 	// Tikrinu kiekviena zodi
 	set<string> rasti_url;
-	for (const auto &galune : url_linkai)
+	string zodis;
+	while (buferis >> zodis)
 	{
-		string galune_su_tasku = "." + galune;
-		size_t tasko_pozicija = 0;
-
-		while ((tasko_pozicija = turinys.find(galune_su_tasku, tasko_pozicija)) != string::npos)
+		string isvalytas = pasalinti_galinius_skyrybos_zenklus(zodis);
+		if (ar_zodis_yra_url(isvalytas, url_linkai))
 		{
-			size_t pradzia = turinys.rfind("http", tasko_pozicija);
-			if (pradzia == string::npos || pradzia + 4 < tasko_pozicija)
-				pradzia = turinys.rfind("www", tasko_pozicija);
-			if (pradzia == string::npos || pradzia + 3 < tasko_pozicija)
-				pradzia = turinys.rfind(' ', tasko_pozicija);
-			if (pradzia == string::npos || pradzia >= tasko_pozicija)
-				pradzia = 0;
-			else
-				pradzia++;
-
-			size_t pabaiga = turinys.find_first_of(" \n\r\t", tasko_pozicija);
-			if (pabaiga == string::npos)
-				pabaiga = turinys.size();
-
-			string galimas_url = turinys.substr(pradzia, pabaiga - pradzia);
-			while (!galimas_url.empty() && (galimas_url.back() == '.' || galimas_url.back() == ',' || galimas_url.back() == ';' || galimas_url.back() == ':' || galimas_url.back() == '!' || galimas_url.back() == '?' || galimas_url.back() == '/'))
-			{
-				galimas_url.pop_back();
-			}
-
-			if (galimas_url.find('.') != string::npos && galimas_url.find(' ') == string::npos)
-			{
-				rasti_url.insert(galimas_url);
-			}
-
-			// bool yra_tinkamas = galimas_url.find("http://") == 0 || galimas_url.find("https://") == 0 || galimas_url.find("www.") == 0 || isalpha(galimas_url[0]);
-
-			// if (yra_tinkamas)
-			// {
-			// 	rasti_url.insert(galimas_url);
-			tasko_pozicija = pabaiga;
-			// }
+			rasti_url.insert(isvalytas);
 		}
 	}
+
+	// for (const auto &galune : url_linkai)
+	// {
+	// 	if (zodis.size() >= galune.size() + 1 && zodis.find("." + galune) != string::npos && (zodis.find("http://") == 0 || zodis.find("https://") == 0 || zodis.find("www.") == 0 || isalpha(zodis[0])))
+	// 	{
+	// 		// Tikriname, ar zodis yra tinkamas URL
+	// 		if (zodis.find("http://") == 0 || zodis.find("https://") == 0 || zodis.find("www.") == 0 || isalpha(zodis[0]))
+	// 		{
+	// 			rasti_url.insert(zodis);
+	// 			break;
+	// 		}
+	// 	}
+	// 	// {
+	// 	// 	size_t pradzia = zodis.rfind("http", zodis.find("." + galune));
+	// 	// 	if (pradzia == string::npos || pradzia + 4 < zodis.find("." + galune))
+	// 	// 		pradzia = zodis.rfind("www", zodis.find("." + galune));
+	// 	// 	if (pradzia == string::npos || pradzia + 3 < zodis.find("." + galune))
+	// 	// 		pradzia = zodis.rfind(' ', zodis.find("." + galune));
+	// 	// 	if (pradzia == string::npos || pradzia >= zodis.find("." + galune))
+	// 	// 		pradzia = 0;
+	// 	// 	else
+	// 	// 		pradzia++;
+
+	// 	// 	size_t pabaiga = zodis.find_first_of(" \n\r\t", zodis.find("." + galune));
+	// 	// 	if (pabaiga == string::npos)
+	// 	// 		pabaiga = zodis.size();
+
+	// 	// 	string galimas_url = zodis.substr(pradzia, pabaiga - pradzia);
+	// 	// 	while (!galimas_url.empty() && (galimas_url.back() == '.' || galimas_url.back() == ',' || galimas_url.back() == ';' || galimas_url.back() == ':' || galimas_url.back() == '!' || galimas_url.back() == '?' || galimas_url.back() == '/'))
+	// 	// 	{
+	// 	// 		galimas_url.pop_back();
+	// 	// 	}
+
+	// 	// 	if (galimas_url.find('.') != string::npos && galimas_url.find(' ') == string::npos)
+	// 	// 	{
+	// 	// 		rasti_url.insert(galimas_url);
+	// 	// 	}
+	// 	// }
+	// 	// string galune_su_tasku = "." + galune;
+	// 	// size_t tasko_pozicija = 0;
+
+	// 	// while ((tasko_pozicija = turinys.find(galune_su_tasku, tasko_pozicija)) != string::npos)
+	// 	// {
+	// 	// 	size_t pradzia = turinys.rfind("http", tasko_pozicija);
+	// 	// 	if (pradzia == string::npos || pradzia + 4 < tasko_pozicija)
+	// 	// 		pradzia = turinys.rfind("www", tasko_pozicija);
+	// 	// 	if (pradzia == string::npos || pradzia + 3 < tasko_pozicija)
+	// 	// 		pradzia = turinys.rfind(' ', tasko_pozicija);
+	// 	// 	if (pradzia == string::npos || pradzia >= tasko_pozicija)
+	// 	// 		pradzia = 0;
+	// 	// 	else
+	// 	// 		pradzia++;
+
+	// 	// 	size_t pabaiga = turinys.find_first_of(" \n\r\t", tasko_pozicija);
+	// 	// 	if (pabaiga == string::npos)
+	// 	// 		pabaiga = turinys.size();
+
+	// 	// 	string galimas_url = turinys.substr(pradzia, pabaiga - pradzia);
+	// 	// 	while (!galimas_url.empty() && (galimas_url.back() == '.' || galimas_url.back() == ',' || galimas_url.back() == ';' || galimas_url.back() == ':' || galimas_url.back() == '!' || galimas_url.back() == '?' || galimas_url.back() == '/'))
+	// 	// 	{
+	// 	// 		galimas_url.pop_back();
+	// 	// 	}
+
+	// 	// 	if (galimas_url.find('.') != string::npos && galimas_url.find(' ') == string::npos)
+	// 	// 	{
+	// 	// 		rasti_url.insert(galimas_url);
+	// 	// 	}
+
+	// 	// 	// bool yra_tinkamas = galimas_url.find("http://") == 0 || galimas_url.find("https://") == 0 || galimas_url.find("www.") == 0 || isalpha(galimas_url[0]);
+
+	// 	// 	// if (yra_tinkamas)
+	// 	// 	// {
+	// 	// 	// 	rasti_url.insert(galimas_url);
+	// 	// 	tasko_pozicija = pabaiga;
+	// 	// 	// }
+	// 	// }
+	// }
 
 	// Irasome rezultatus i faila
 	ofstream rezultatai("rastieji_url.txt");
