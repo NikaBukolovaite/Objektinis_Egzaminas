@@ -13,5 +13,6 @@ unordered_set<wstring> nuskaityti_tld(const string &failas);
 bool ar_tai_yra_url(const wstring &zodis, const unordered_set<wstring> &tldSet);
 void link(set<wstring> &linkai, wstringstream &eilute, const string &url_sarasas);
 void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sarasas);
+void rasti_zodzius_su_org(const string &failo_pavadinimas);
 
 #endif

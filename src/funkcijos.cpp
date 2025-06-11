@@ -209,7 +209,7 @@ bool ar_tai_yra_url(const wstring &zodis, const unordered_set<wstring> &tldSet)
 
 	for (wchar_t c : zodis)
 	{
-		if (c == L'.')
+		if (c == L'.' || c == L'/' || c == L':')
 		{
 			if (!dabartinis.empty())
 			{
@@ -217,7 +217,7 @@ bool ar_tai_yra_url(const wstring &zodis, const unordered_set<wstring> &tldSet)
 				dabartinis.clear();
 			}
 		}
-		else if (!iswspace(c))
+		else
 		{
 			dabartinis += towlower(c);
 		}
@@ -228,16 +228,10 @@ bool ar_tai_yra_url(const wstring &zodis, const unordered_set<wstring> &tldSet)
 	if (segmentai.size() < 2)
 		return false;
 
-	for (int i = static_cast<int>(segmentai.size()) - 1; i >= 1; --i)
+	for (int i = static_cast<int>(segmentai.size()) - 2; i >= 0; --i)
 	{
-		wstring galimasTLD = segmentai[i];
-		for (int j = i - 1; j >= 0; --j)
-		{
-			galimasTLD = segmentai[j] + L"." + galimasTLD;
-			if (tldSet.count(galimasTLD))
-				return true;
-		}
-		if (tldSet.count(segmentai[i]))
+		wstring galimasTLD = segmentai[i + 1];
+		if (tldSet.count(galimasTLD))
 			return true;
 	}
 
@@ -324,4 +318,39 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 	}
 
 	cout << "Rasti URL'ai įrašyti į 'OutputFailai/rastieji_url.txt'\n";
+}
+
+void rasti_zodzius_su_org(const string &failo_pavadinimas)
+{
+	std::wifstream in(failo_pavadinimas);
+	if (!in)
+	{
+		throw std::ios_base::failure("Nepavyko atidaryti failo");
+		return;
+	}
+
+	std::vector<std::wstring> rasti_zodziai;
+	std::wstring line;
+	std::wstring subzodis = L"org";
+
+	while (std::getline(in, line))
+	{
+		std::wstringstream lineStream(line);
+		std::wstring zodis;
+		while (lineStream >> zodis)
+		{
+			wstring svarus = skyrybos_zenklai(zodis);
+			if (svarus.find(subzodis) != std::wstring::npos)
+			{
+				rasti_zodziai.push_back(zodis);
+			}
+		}
+	}
+
+	std::sort(rasti_zodziai.begin(), rasti_zodziai.end());
+	std::wofstream out("OutputFailai/zodziai_su_org.txt");
+	for (const auto &z : rasti_zodziai)
+		out << z << std::endl;
+
+	std::cout << "Žodžiai su 'org' įrašyti į 'OutputFailai/zodziai_su_org.txt'\n";
 }
