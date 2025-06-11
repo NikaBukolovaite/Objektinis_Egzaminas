@@ -1,5 +1,6 @@
 #include "funkcijos.h"
 #include <cwctype>
+#include <stdexcept>
 
 string koki_faila_nuskaityti()
 {
@@ -39,18 +40,43 @@ string koki_faila_nuskaityti()
 
 wstring skyrybos_zenklai(const wstring &zodis)
 {
-	wstring rezultatas{};
-	wstring papildomi_skyrybos = L"–„′−";
-
+	wstring rezultatas;
 	for (wchar_t c : zodis)
 	{
 
-		if (!std::iswpunct(c) && !std::iswdigit(c) && papildomi_skyrybos.find(c) == string::npos)
+		if (iswalpha(c) || c == L'ė' || c == L'ų' || c == L'ū' || c == L'ą' || c == L'č' || c == L'ę' || c == L'į' || c == L'š' || c == L'ž' || c == L'ó')
 		{
 			rezultatas += towlower(c);
 		}
 	}
 	return rezultatas;
+}
+
+void eilute(wstringstream &eilute)
+{
+	const set<wchar_t> skirybos_zenklai = {
+		L'.', L',', L';', L':', L'!', L'?', L'-', L'(', L')', L'[', L']', L'{', L'}',
+		L'\'', L'"', L'/', L'\\', L'|', L'@', L'#', L'$', L'%', L'^', L'&', L'*',
+		L'_', L'+', L'=', L'<', L'>', L'`', L'~',
+		L'—', L'–', L'−', L'‐', L'‒', L'―',
+		L'„', L'“',
+		L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'};
+
+	wchar_t simbolis;
+	wstring rezultatas;
+	while (eilute.get(simbolis))
+	{
+		if (skirybos_zenklai.count(simbolis))
+		{
+			rezultatas += L' ';
+		}
+		else
+		{
+			rezultatas += towlower(simbolis);
+		}
+	}
+	eilute.clear();
+	eilute.str(rezultatas);
 }
 
 void suskaiciuoti_kiek_zodziu_ir_irasyti_rezultata(const string &failo_pavadinimas)
@@ -150,22 +176,6 @@ void cross_reference_lentele(const string &failo_pavadinimas)
 	cout << "Cross-reference lentelė įrašyta į 'OutputFailai/cross_reference.txt'\n";
 }
 
-wstring gauti_url_link(const wstring &zodis)
-{
-	size_t paskutinis_taskas = zodis.rfind('.');
-	if (paskutinis_taskas == wstring::npos || paskutinis_taskas + 1 >= zodis.size())
-	{
-		return L"";
-	}
-	wstring galune = zodis.substr(paskutinis_taskas + 1);
-	size_t galas = 0;
-	while (galas < galune.size() && isalpha(galune[galas]))
-	{
-		galas++;
-	}
-	return galune.substr(0, galas);
-}
-
 wstring pasalinti_galinius_skyrybos_zenklus(const wstring &zodis)
 {
 	size_t pabaiga = zodis.size();
@@ -176,34 +186,81 @@ wstring pasalinti_galinius_skyrybos_zenklus(const wstring &zodis)
 	return zodis.substr(0, pabaiga);
 }
 
-bool ar_zodis_yra_url(const wstring &zodis, const set<wstring> &url_linkai)
+unordered_set<wstring> nuskaityti_tld(const string &failas)
 {
-	size_t tasko_pozicija = zodis.find('.');
-	if (tasko_pozicija == wstring::npos || tasko_pozicija + 1 >= zodis.size())
+	unordered_set<wstring> tldSet;
+	wifstream fin(failas);
+	wstring eilute;
+	while (getline(fin, eilute))
 	{
+		if (!eilute.empty() && iswalpha(eilute[0]))
+		{
+			transform(eilute.begin(), eilute.end(), eilute.begin(), ::towlower);
+			tldSet.insert(eilute);
+		}
+	}
+	return tldSet;
+}
+
+bool ar_tai_yra_url(const wstring &zodis, const unordered_set<wstring> &tldSet)
+{
+	vector<wstring> segmentai;
+	wstring dabartinis;
+
+	for (wchar_t c : zodis)
+	{
+		if (c == L'.')
+		{
+			if (!dabartinis.empty())
+			{
+				segmentai.push_back(dabartinis);
+				dabartinis.clear();
+			}
+		}
+		else if (!iswspace(c))
+		{
+			dabartinis += towlower(c);
+		}
+	}
+	if (!dabartinis.empty())
+		segmentai.push_back(dabartinis);
+
+	if (segmentai.size() < 2)
 		return false;
+
+	for (int i = static_cast<int>(segmentai.size()) - 1; i >= 1; --i)
+	{
+		wstring galimasTLD = segmentai[i];
+		for (int j = i - 1; j >= 0; --j)
+		{
+			galimasTLD = segmentai[j] + L"." + galimasTLD;
+			if (tldSet.count(galimasTLD))
+				return true;
+		}
+		if (tldSet.count(segmentai[i]))
+			return true;
 	}
 
-	wstring galune = zodis.substr(tasko_pozicija + 1);
-	size_t end = 0;
-	while (end < galune.size() && isalpha(galune[end]))
-		end++;
-	galune = galune.substr(0, end);
-	transform(galune.begin(), galune.end(), galune.begin(), ::tolower);
-
-	if (url_linkai.count(galune) == 0)
-	{
-		return false;
-	}
-	if (zodis.find(L"http://") == 0 || zodis.find(L"https://") == 0 || zodis.find(L"www.") == 0)
-	{
-		return true;
-	}
-	if (isalnum(zodis[0]) && zodis.find(' ') == wstring::npos)
-	{
-		return true;
-	}
 	return false;
+}
+
+void link(set<wstring> &linkai, wstringstream &eilute, const string &url_sarasas)
+{
+	auto url_linkai = nuskaityti_tld(url_sarasas);
+
+	wstring zodis;
+	while (eilute >> zodis)
+	{
+		wstring originalus_zodis = zodis;
+
+		while (!zodis.empty() && (zodis.back() == L'.' || zodis.back() == L','))
+			zodis.pop_back();
+
+		if (ar_tai_yra_url(zodis, url_linkai))
+		{
+			linkai.insert(zodis);
+		}
+	}
 }
 
 void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sarasas)
@@ -215,7 +272,7 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 		throw std::ios_base::failure("Klaida: nepavyko atidaryti URL failo!");
 		return;
 	}
-	set<wstring> url_linkai;
+	unordered_set<wstring> url_linkai;
 	wstring eilute;
 	while (getline(url_failas, eilute))
 	{
@@ -241,11 +298,12 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 
 	// Tikrinu kiekviena zodi
 	set<wstring> rasti_url;
+	link(rasti_url, buferis, url_sarasas);
 	wstring zodis;
 	while (buferis >> zodis)
 	{
 		wstring isvalytas = pasalinti_galinius_skyrybos_zenklus(zodis);
-		if (ar_zodis_yra_url(isvalytas, url_linkai))
+		if (ar_tai_yra_url(isvalytas, url_linkai))
 		{
 			rasti_url.insert(isvalytas);
 		}
@@ -265,5 +323,5 @@ void rasti_visus_galimus_url(const string &teksto_failas, const string &url_sara
 		rezultatai << url << "\n";
 	}
 
-	wcout << "Rasti URL'ai įrašyti į 'OutputFailai/rastieji_url.txt'\n";
+	cout << "Rasti URL'ai įrašyti į 'OutputFailai/rastieji_url.txt'\n";
 }

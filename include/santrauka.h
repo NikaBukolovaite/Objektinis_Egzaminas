@@ -28,6 +28,9 @@
 #include <cctype>
 #include <string>
 #include <locale>
+#include <cwctype>
+#include <iomanip>
+#include <unordered_set>
 
 using std::cerr;
 using std::cin;
@@ -53,6 +56,7 @@ using std::string;
 using std::stringstream;
 using std::to_string;
 using std::unordered_map;
+using std::unordered_set;
 using std::vector;
 using std::wcout;
 using std::wifstream;
